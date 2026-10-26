@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash
 
 DB_PATH = os.getenv("DB_PATH", os.path.join(os.path.dirname(__file__), "banking.db"))
 username = os.getenv("ADMIN_USERNAME", "admin")
-password = os.getenv("ADMIN_PASSWORD", "admin")
+password = os.getenv("ADMIN_PASSWORD", re.sub(r"\s+", "", username).lower())
 
 conn = sqlite3.connect(DB_PATH)
 conn.execute("PRAGMA foreign_keys = ON")
@@ -15,6 +15,22 @@ conn.execute(
        role='Admin', is_active=1""",
     (username, generate_password_hash(password))
 )
+admin_user_id = conn.execute(
+    "SELECT user_id FROM users WHERE username=?",
+    (username,)
+).fetchone()[0]
+for user_id, existing_username in conn.execute(
+    """SELECT user_id, username FROM users
+       WHERE user_id != ?
+       AND user_id NOT IN (SELECT user_id FROM customer_logins)""",
+    (admin_user_id,)
+).fetchall():
+    user_password = re.sub(r"\s+", "", existing_username).lower()
+    conn.execute(
+        "UPDATE users SET password_hash=? WHERE user_id=?",
+        (generate_password_hash(user_password), user_id)
+    )
+
 for customer_id, full_name in conn.execute(
     "SELECT customer_id, full_name FROM customers ORDER BY customer_id"
 ).fetchall():

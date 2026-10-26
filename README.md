@@ -62,7 +62,7 @@ python app.py
 - Username: `admin`
 - Password: `admin`
 
-Every customer has a demo login. Its username is the customer's name converted to lowercase with spaces and punctuation removed (for example, `Aarav Sen` becomes `aaravsen`); the password is the same as the username. If a username is already taken, a numeric suffix is added. The login page provides a dropdown of active usernames. Customer logins are created when customers are added and when `init_db.py` is run for existing customers.
+Every customer has a demo login. Its username is the customer's name converted to lowercase with spaces and punctuation removed (for example, `Aarav Sen` becomes `aaravsen`); the password is the same as the username. If a username is already taken, a numeric suffix is added. Other seeded non-admin users use their lowercase username with whitespace removed as the password. The login page provides a dropdown of active usernames. Customer logins are created when customers are added and when `init_db.py` is run for existing customers.
 
 Customer mode can view that customer's accounts and transaction history, open additional accounts for itself, update its profile, and make demo deposits, withdrawals, and transfers. Customer routes restrict account and transaction access to the linked customer. Customer-opened accounts receive an automatically generated account number and a zero opening balance. These are classroom demo credentials and are **not real banking authentication**.
 
@@ -77,9 +77,11 @@ To refresh an existing database after updating the project, run `python init_sch
 6. Review transaction history and updated balances.
 
 ## Database
-- `schema.sql`: SQLite schema, constraints, indexes and sample data.
+- `schema.sql`: SQLite schema, constraints, indexes and the full database seed snapshot.
 - `init_schema.py`: creates `banking.db` and initializes the tables.
 - `init_db.py`: creates/updates the hashed-password admin and demo customer users.
 - `banking.db`: generated locally the first time `init_schema.py` runs.
+
+The seed data in `schema.sql` is a snapshot of every row from the included mock `banking.db`, including customer contact details, account balances, and transaction history. User password hashes in the seed are inert placeholders; `init_db.py` creates or updates the demo credentials. Do not use real customer data.
 
 Back up the `banking.db` file to preserve the data. To reset the demo, stop the app, delete `banking.db`, and rerun `python init_schema.py` followed by `python init_db.py`.
