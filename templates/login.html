@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Login | CITYBANK{% endblock %}
+{% block content %}
+<section class="login-card">
+  <div class="bank-mark">C</div>
+  <h1>CITYBANK</h1>
+  <p class="muted">Choose an admin or customer demo login to continue.</p>
+  <form method="post" class="stack">
+    <label>Username / UID<select name="username" required autocomplete="username">
+      <option value="">Choose username</option>
+      {% for user in login_users %}
+      <option value="{{ user.username }}" {% if request.form.get('username') == user.username %}selected{% endif %}>{{ user.username }} ({{ user.role }})</option>
+      {% endfor %}
+    </select></label>
+    <label>Password
+      <span class="password-field">
+        <input id="loginPassword" type="password" name="password" required autocomplete="current-password">
+        <button class="password-toggle" type="button" id="togglePassword" aria-label="Show password" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </button>
+      </span>
+    </label>
+    <button class="btn primary full" type="submit">Sign In</button>
+  </form>
+  <div class="demo-logins">
+    <p><strong>Admin:</strong> <code>admin</code> / <code>admin</code></p>
+    <p><strong>Customer:</strong> use the customer's username in the list above as both username and password.</p>
+  </div>
+</section>
+<script>
+const loginPassword = document.getElementById('loginPassword');
+const togglePassword = document.getElementById('togglePassword');
+togglePassword.addEventListener('click', () => {
+  const showing = loginPassword.type === 'password';
+  loginPassword.type = showing ? 'text' : 'password';
+  togglePassword.setAttribute('aria-label', showing ? 'Hide password' : 'Show password');
+  togglePassword.setAttribute('aria-pressed', String(showing));
+});
+</script>
+{% endblock %}

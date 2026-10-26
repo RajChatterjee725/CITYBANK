@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Customers | CITYBANK{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Customers</h1><p class="muted">Create and maintain customer records.</p></div><a class="btn primary" href="{{ url_for('customer_form') }}">+ Add Customer</a></div>
+<form class="filters" method="get">
+  <label>Search<input name="q" value="{{ filters.q }}" placeholder="Name, email, phone, or address"></label>
+  <label>Customer ID<input type="number" name="customer_id" min="1" step="1" value="{{ filters.customer_id }}" placeholder="ID"></label>
+  <label>Status<select name="status"><option value="">All statuses</option><option value="Active" {% if filters.status == 'Active' %}selected{% endif %}>Active</option><option value="Inactive" {% if filters.status == 'Inactive' %}selected{% endif %}>Inactive</option></select></label>
+  <label>Minimum accounts<input type="number" name="min_accounts" min="0" step="1" value="{{ filters.min_accounts }}" placeholder="Min"></label>
+  <label>Maximum accounts<input type="number" name="max_accounts" min="0" step="1" value="{{ filters.max_accounts }}" placeholder="Max"></label>
+  <label>Created from<input type="date" name="date_from" value="{{ filters.date_from }}"></label>
+  <label>Created to<input type="date" name="date_to" value="{{ filters.date_to }}"></label>
+  <div class="filter-actions"><button class="btn primary" type="submit">Apply Filters</button><a class="btn" href="{{ url_for('customers_list') }}">Clear</a></div>
+</form>
+<section class="panel"><div class="table-wrap"><table><thead><tr><th>ID</th><th>Customer</th><th>Email</th><th>Phone</th><th>Accounts</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+{% for c in customers %}<tr><td>{{ c.customer_id }}</td><td><strong>{{ c.full_name }}</strong><small>{{ c.address or '' }}</small></td><td>{{ c.email or '—' }}</td><td>{{ c.phone or '—' }}</td><td>{{ c.account_count }}</td><td>{{ c.status }}</td><td class="actions"><a class="btn small" href="{{ url_for('customer_form', customer_id=c.customer_id) }}">Edit</a><form method="post" action="{{ url_for('customer_delete', customer_id=c.customer_id) }}" onsubmit="return confirm('Permanently delete this customer, all their accounts, and related transaction history?')"><button class="btn small danger" type="submit">Delete</button></form></td></tr>
+{% else %}<tr><td colspan="7" class="empty">No customers found.</td></tr>{% endfor %}
+</tbody></table></div></section>
+{% endblock %}

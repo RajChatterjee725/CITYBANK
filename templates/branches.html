@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Branches | CITYBANK{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Branches</h1><p class="muted">Bank branch records.</p></div></div>
+<section class="panel form-panel"><h2>Add Branch</h2><form method="post" class="form-grid">
+<label>Branch name *<input name="branch_name" required maxlength="120"></label>
+<label>Email<input type="email" name="branch_email" maxlength="254"></label>
+<label>Address<input name="branch_address" maxlength="500"></label>
+<label>Status<select name="status"><option value="Active">Active</option><option value="Inactive">Inactive</option></select></label>
+<div class="wide form-actions"><button class="btn primary" type="submit">Add Branch</button></div>
+</form></section>
+<section class="panel"><div class="table-wrap"><table><thead><tr><th>ID</th><th>Branch</th><th>Email</th><th>Address</th><th>Status</th></tr></thead><tbody>{% for b in branches %}<tr><td>{{ b.branch_id }}</td><td><strong>{{ b.branch_name }}</strong></td><td>{{ b.branch_email or '—' }}</td><td>{{ b.branch_address or '—' }}</td><td>{{ b.status }}</td></tr>{% endfor %}</tbody></table></div></section>
+{% endblock %}

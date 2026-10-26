@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}CITYBANK{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+{% if session.get('user_id') %}
+<header class="topbar">
+  <a class="brand" href="{{ url_for('dashboard') }}">CITYBANK</a>
+  <div class="user-menu"><span>{{ session.get('username') }} · {{ session.get('role') }}</span><a href="{{ url_for('logout') }}">Logout</a></div>
+</header>
+<div class="layout">
+  <aside class="sidebar">
+    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+    <a href="{{ url_for('accounts_list') }}">Accounts</a>
+    <a href="{{ url_for('transactions_list') }}">Transactions</a>
+    {% if session.get('role') == 'Customer' %}
+    <a href="{{ url_for('customer_profile') }}">My Profile</a>
+    {% else %}
+    <a href="{{ url_for('customers_list') }}">Customers</a>
+    <a href="{{ url_for('account_types') }}">Account Types</a>
+    <a href="{{ url_for('branches_list') }}">Branches</a>
+    {% endif %}
+  </aside>
+  <main class="main">
+{% else %}
+<main class="login-wrap">
+{% endif %}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}<div class="alert {{ category }}">{{ message }}</div>{% endfor %}
+    {% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+{% if session.get('user_id') %}
+</div>
+{% endif %}
+</body>
+</html>

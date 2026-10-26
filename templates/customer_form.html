@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if customer else 'Add' }} Customer | CITYBANK{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{{ 'Edit Customer' if customer else 'Add Customer' }}</h1><p class="muted">Fields marked * are required.</p></div><a class="btn" href="{{ url_for('customers_list') }}">← Back</a></div>
+<section class="panel form-panel"><form method="post" class="form-grid">
+<label>Full name *<input name="full_name" required maxlength="120" value="{{ customer.full_name if customer else '' }}"></label>
+<label>Email<input type="email" name="email" value="{{ customer.email if customer and customer.email else '' }}"></label>
+<label>Phone<input name="phone" value="{{ customer.phone if customer and customer.phone else '' }}"></label>
+<label class="wide">Address<textarea name="address" rows="3">{{ customer.address if customer and customer.address else '' }}</textarea></label>
+<div class="wide form-actions"><button class="btn primary" type="submit">Save Customer</button><a class="btn" href="{{ url_for('customers_list') }}">Cancel</a></div>
+</form></section>
+{% endblock %}

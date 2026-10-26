@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Accounts | CITYBANK{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{{ 'My Accounts' if session.get('role') == 'Customer' else 'Accounts' }}</h1><p class="muted">{{ 'Your accounts and balances.' if session.get('role') == 'Customer' else 'Manage bank accounts and status.' }}</p></div><a class="btn primary" href="{{ url_for('account_new') }}">+ Open Account</a></div>
+<form class="filters" method="get">
+  <label>Search<input name="q" value="{{ filters.q }}" placeholder="Account number or customer"></label>
+  {% if session.get('role') != 'Customer' %}
+  <label>Customer<select name="customer_id"><option value="">All customers</option>{% for c in customers %}<option value="{{ c.customer_id }}" {% if filters.customer_id == c.customer_id|string %}selected{% endif %}>{{ c.full_name }}</option>{% endfor %}</select></label>
+  {% endif %}
+  <label>Account type<select name="account_type_id"><option value="">All types</option>{% for t in types %}<option value="{{ t.account_type_id }}" {% if filters.account_type_id == t.account_type_id|string %}selected{% endif %}>{{ t.type_name }}</option>{% endfor %}</select></label>
+  <label>Branch<select name="branch_id"><option value="">All branches</option>{% for b in branches %}<option value="{{ b.branch_id }}" {% if filters.branch_id == b.branch_id|string %}selected{% endif %}>{{ b.branch_name }}</option>{% endfor %}</select></label>
+  <label>Status<select name="status"><option value="">All statuses</option><option value="Active" {% if filters.status == 'Active' %}selected{% endif %}>Active</option><option value="Closed" {% if filters.status == 'Closed' %}selected{% endif %}>Closed</option></select></label>
+  <label>Minimum balance<input type="number" name="min_balance" min="0" step="0.01" value="{{ filters.min_balance }}" placeholder="₹ Min"></label>
+  <label>Maximum balance<input type="number" name="max_balance" min="0" step="0.01" value="{{ filters.max_balance }}" placeholder="₹ Max"></label>
+  <div class="filter-actions"><button class="btn primary" type="submit">Apply Filters</button><a class="btn" href="{{ url_for('accounts_list') }}">Clear</a></div>
+</form>
+<section class="panel"><div class="table-wrap"><table><thead><tr><th>Account No.</th>{% if session.get('role') != 'Customer' %}<th>Customer</th>{% endif %}<th>Type</th><th>Branch</th><th>Balance</th><th>Status</th><th>Action</th></tr></thead><tbody>
+{% for a in accounts %}<tr><td><strong>{{ a.account_no }}</strong></td>{% if session.get('role') != 'Customer' %}<td>{{ a.full_name }}</td>{% endif %}<td>{{ a.type_name }}</td><td>{{ a.branch_name }}</td><td>₹{{ "%.2f"|format(a.balance) }}</td><td><span class="status {{ 'closed' if a.status == 'Closed' else '' }}">{{ a.status }}</span></td><td class="actions">{% if session.get('role') == 'Customer' %}{% if a.status == 'Active' %}<form method="post" action="{{ url_for('customer_close_account', account_id=a.account_id) }}" onsubmit="return confirm('Close this account?')"><button class="btn small danger" type="submit">Close</button></form>{% else %}—{% endif %}{% else %}<form method="post" action="{{ url_for('account_status', account_id=a.account_id) }}"><input type="hidden" name="status" value="{{ 'Closed' if a.status == 'Active' else 'Active' }}"><button class="btn small" type="submit">{{ 'Close' if a.status == 'Active' else 'Reopen' }}</button></form><form method="post" action="{{ url_for('account_delete', account_id=a.account_id) }}" onsubmit="return confirm('Permanently delete this account and its transaction history?')"><button class="btn small danger" type="submit">Delete</button></form>{% endif %}</td></tr>
+{% else %}<tr><td colspan="7" class="empty">No accounts found.</td></tr>{% endfor %}
+</tbody></table></div></section>
+{% endblock %}

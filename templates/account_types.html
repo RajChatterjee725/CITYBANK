@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Account Types | CITYBANK{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Account Types</h1><p class="muted">Available types configured in the database.</p></div></div>
+<section class="panel"><div class="table-wrap"><table><thead><tr><th>ID</th><th>Type</th><th>Minimum Balance</th><th>Interest Rate</th><th>Transaction Limit</th></tr></thead><tbody>{% for t in types %}<tr><td>{{ t.account_type_id }}</td><td><strong>{{ t.type_name }}</strong></td><td>₹{{ "%.2f"|format(t.minimum_balance) }}</td><td>{{ "%.2f"|format(t.interest_rate) }}%</td><td>₹{{ "%.2f"|format(t.transaction_limit) }}</td></tr>{% endfor %}</tbody></table></div></section>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Transactions | CITYBANK{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{{ 'My Transactions' if session.get('role') == 'Customer' else 'Transactions' }}</h1><p class="muted">Recent deposits, withdrawals and transfers.</p></div><a class="btn primary" href="{{ url_for('transaction_new') }}">+ New Transaction</a></div>
+<form class="filters" method="get">
+  <label>Search<input name="q" value="{{ filters.q }}" placeholder="Account, customer, or description"></label>
+  {% if session.get('role') != 'Customer' %}
+  <label>Customer<select name="customer_id"><option value="">All customers</option>{% for c in customers %}<option value="{{ c.customer_id }}" {% if filters.customer_id == c.customer_id|string %}selected{% endif %}>{{ c.full_name }}</option>{% endfor %}</select></label>
+  {% endif %}
+  <label>Account<select name="account_id"><option value="">All accounts</option>{% for a in accounts %}<option value="{{ a.account_id }}" {% if filters.account_id == a.account_id|string %}selected{% endif %}>{{ a.account_no }}</option>{% endfor %}</select></label>
+  <label>Transaction type<select name="transaction_type"><option value="">All types</option>{% for kind in transaction_types %}<option value="{{ kind }}" {% if filters.transaction_type == kind %}selected{% endif %}>{{ kind|replace('_', ' ') }}</option>{% endfor %}</select></label>
+  <label>Status<select name="status"><option value="">All statuses</option><option value="Success" {% if filters.status == 'Success' %}selected{% endif %}>Success</option><option value="Failed" {% if filters.status == 'Failed' %}selected{% endif %}>Failed</option></select></label>
+  <label>From date<input type="date" name="date_from" value="{{ filters.date_from }}"></label>
+  <label>To date<input type="date" name="date_to" value="{{ filters.date_to }}"></label>
+  <label>Minimum amount<input type="number" name="min_amount" min="0" step="0.01" value="{{ filters.min_amount }}" placeholder="₹ Min"></label>
+  <label>Maximum amount<input type="number" name="max_amount" min="0" step="0.01" value="{{ filters.max_amount }}" placeholder="₹ Max"></label>
+  <div class="filter-actions"><button class="btn primary" type="submit">Apply Filters</button><a class="btn" href="{{ url_for('transactions_list') }}">Clear</a></div>
+</form>
+<section class="panel"><div class="table-wrap"><table><thead><tr><th>ID</th><th>Date</th><th>Account</th>{% if session.get('role') != 'Customer' %}<th>Customer</th>{% endif %}<th>Type</th><th>Amount</th><th>Description</th><th>Status</th></tr></thead><tbody>
+{% for t in transactions %}<tr><td>#{{ t.transaction_id }}</td><td>{{ t.display_created_at or t.created_at }}</td><td>{{ t.account_no }}</td>{% if session.get('role') != 'Customer' %}<td>{{ t.full_name }}</td>{% endif %}<td><span class="pill">{{ t.transaction_type }}</span></td><td>₹{{ "%.2f"|format(t.amount) }}</td><td>{{ t.description or '—' }}</td><td>{{ t.status }}</td></tr>
+{% else %}<tr><td colspan="{{ 7 if session.get('role') == 'Customer' else 8 }}" class="empty">No transactions recorded.</td></tr>{% endfor %}
+</tbody></table></div></section>
+{% endblock %}

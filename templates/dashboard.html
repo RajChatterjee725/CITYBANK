@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | CITYBANK{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{{ 'Customer Dashboard' if session.get('role') == 'Customer' else 'Admin Dashboard' }}</h1><p class="muted">{{ 'Your accounts and recent activity.' if session.get('role') == 'Customer' else 'Overview of CITYBANK.' }}</p></div><a class="btn primary" href="{{ url_for('transaction_new') }}">+ New Transaction</a></div>
+<div class="stats">
+  {% if session.get('role') == 'Customer' %}
+  <div class="stat"><span>Your Active Accounts</span><strong>{{ accounts }}</strong></div>
+  <div class="stat"><span>Your Total Balance</span><strong>₹{{ "%.2f"|format(total_balance) }}</strong></div>
+  <div class="stat"><span>Your Transactions Today</span><strong>{{ today_transactions }}</strong></div>
+  {% else %}
+  <div class="stat"><span>Active Customers</span><strong>{{ customers }}</strong></div>
+  <div class="stat"><span>Active Accounts</span><strong>{{ accounts }}</strong></div>
+  <div class="stat"><span>Total Account Balance</span><strong>₹{{ "%.2f"|format(total_balance) }}</strong></div>
+  <div class="stat"><span>Transactions Today</span><strong>{{ today_transactions }}</strong></div>
+  {% endif %}
+</div>
+<section class="panel">
+  <div class="panel-head"><h2>Recent Transactions</h2><a href="{{ url_for('transactions_list') }}">View all</a></div>
+  <div class="table-wrap"><table><thead><tr><th>ID</th><th>Account</th><th>Type</th><th>Amount</th><th>Date</th><th>Status</th></tr></thead><tbody>
+  {% for t in recent %}<tr><td>#{{ t.transaction_id }}</td><td>{{ t.account_no }}</td><td><span class="pill">{{ t.transaction_type }}</span></td><td>₹{{ "%.2f"|format(t.amount) }}</td><td>{{ t.display_created_at or t.created_at }}</td><td><span class="status">{{ t.status }}</span></td></tr>
+  {% else %}<tr><td colspan="6" class="empty">No transactions yet.</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% endblock %}

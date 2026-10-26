@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}My Profile | CITYBANK{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>My Profile</h1><p class="muted">Update your sample customer contact details.</p></div></div>
+<section class="panel form-panel"><form method="post" class="form-grid">
+<label>Full name *<input name="full_name" required maxlength="120" value="{{ customer.full_name }}"></label>
+<label>Email<input type="email" name="email" value="{{ customer.email or '' }}"></label>
+<label>Phone<input name="phone" value="{{ customer.phone or '' }}"></label>
+<label class="wide">Address<textarea name="address" rows="3">{{ customer.address or '' }}</textarea></label>
+<div class="wide form-actions"><button class="btn primary" type="submit">Save Profile</button><a class="btn" href="{{ url_for('dashboard') }}">Cancel</a></div>
+</form></section>
+{% endblock %}

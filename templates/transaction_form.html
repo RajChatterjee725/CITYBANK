@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}New Transaction | CITYBANK{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>New Transaction</h1><p class="muted">Transactions update account balances immediately.</p></div><a class="btn" href="{{ url_for('transactions_list') }}">← Back</a></div>
+<section class="panel form-panel"><form method="post" class="form-grid" id="transactionForm">
+<label>Transaction type *<select name="transaction_type" id="kind" required><option value="DEPOSIT">Deposit</option><option value="WITHDRAWAL">Withdrawal</option><option value="TRANSFER">Transfer</option></select></label>
+<label>Source account *<select name="account_id" id="sourceAccount" required><option value="">Choose account</option>{% for a in accounts %}<option value="{{ a.account_id }}">{{ a.account_no }} — ₹{{ "%.2f"|format(a.balance) }}</option>{% endfor %}</select></label>
+<label id="destinationWrap" class="wide hidden">Destination account number *
+  <input name="to_account_no" id="destination" list="destinationSuggestions" placeholder="Type at least 2 characters to search" autocomplete="off">
+  <datalist id="destinationSuggestions"></datalist>
+  <small class="muted" id="destinationHint" aria-live="polite">Enter part of an active account number to see suggestions.</small>
+</label>
+<label>Amount (₹) *<input type="number" name="amount" min="0.01" step="0.01" required></label>
+<label>Description<input name="description" maxlength="255" placeholder="Optional note"></label>
+<div class="wide form-actions"><button class="btn primary" type="submit">Submit Transaction</button><a class="btn" href="{{ url_for('transactions_list') }}">Cancel</a></div>
+</form></section>
+<script>
+const kind = document.getElementById('kind');
+const wrap = document.getElementById('destinationWrap');
+const destination = document.getElementById('destination');
+const suggestions = document.getElementById('destinationSuggestions');
+const sourceAccount = document.getElementById('sourceAccount');
+const destinationHint = document.getElementById('destinationHint');
+let searchTimer;
+let searchController;
+function updateDestination() {
+  const transfer = kind.value === 'TRANSFER';
+  wrap.classList.toggle('hidden', !transfer);
+  destination.required = transfer;
+}
+async function searchDestinationAccounts() {
+  const query = destination.value.trim();
+  suggestions.replaceChildren();
+  if (query.length < 2) {
+    destinationHint.textContent = 'Enter at least 2 characters to search active account numbers.';
+    return;
+  }
+  if (searchController) searchController.abort();
+  searchController = new AbortController();
+  destinationHint.textContent = 'Searching active accounts...';
+  const params = new URLSearchParams({q: query, source_account_id: sourceAccount.value});
+  try {
+    const response = await fetch(`{{ url_for('account_search') }}?${params}`, {
+      signal: searchController.signal,
+      headers: {'Accept': 'application/json'}
+    });
+    if (!response.ok) throw new Error('Account search failed.');
+    const result = await response.json();
+    for (const accountNumber of result.accounts) {
+      const option = document.createElement('option');
+      option.value = accountNumber;
+      suggestions.append(option);
+    }
+    destinationHint.textContent = result.accounts.length
+      ? `${result.accounts.length} matching active account${result.accounts.length === 1 ? '' : 's'} found.`
+      : 'No matching active accounts found.';
+  } catch (error) {
+    if (error.name !== 'AbortError') {
+      destinationHint.textContent = 'Could not search accounts. Please try again.';
+    }
+  }
+}
+kind.addEventListener('change', updateDestination);
+destination.addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(searchDestinationAccounts, 250);
+});
+sourceAccount.addEventListener('change', searchDestinationAccounts);
+updateDestination();
+</script>
+{% endblock %}
