@@ -1,4 +1,4 @@
-# CITYBANK Account Management System (SQLite Edition)
+# CITYBANK Account Management System
 
 A local browser-based college project using Python Flask, SQLite, HTML, CSS and JavaScript. **No MySQL installation or separate database server is needed.** SQLite stores data in the local `banking.db` file.
 
@@ -83,6 +83,3 @@ To refresh an existing database after updating the project, run `python init_sch
 - `banking.db`: generated locally the first time `init_schema.py` runs.
 
 Back up the `banking.db` file to preserve the data. To reset the demo, stop the app, delete `banking.db`, and rerun `python init_schema.py` followed by `python init_db.py`.
-
-## Notes
-This is an educational local demo, not production banking software. Do not use real customer data. Debug mode is enabled for local development only. SQLite is ideal for a local single-computer demonstration; a real multi-user banking service would need additional security and operational controls.
